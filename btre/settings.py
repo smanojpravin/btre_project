@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 import django_heroku
+# Parse database configuration from $DATABASE_URL
 import dj_database_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -27,7 +28,8 @@ SECRET_KEY = 'ubsq#xai!qa_!dsi=61a&mbqn)lxtl*x48$fi0v-l^k%0z1^bn'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['btre-realestate-project.herokuapp.com','127.0.0.1']
+# Allow all host hosts/domain names for this site
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -45,6 +47,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'storages',
+    'boto',
 ]
 
 CSRF_COOKIE_SECURE = False
@@ -82,20 +86,31 @@ WSGI_APPLICATION = 'btre.wsgi.application'
 
 
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'btredb',
+#         'USER': 'postgres',
+#         'PASSWORD': 'admin',
+#         'HOST': 'localhost'
+#     }
+# }
+DATABASES = { 'default' : dj_database_url.config()}
+
+# we only need the engine name, as heroku takes care of the rest
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'btredb',
-        'USER': 'postgres',
-        'PASSWORD': 'admin',
-        'HOST': 'localhost'
+    "default": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
     }
 }
 
 
+
+# DATABASES = { 'default' : dj_database_url.config()}
+
 # New
-db_from_env = dj_database_url.config(conn_max_age=600)
-DATABASES['default'].update(db_from_env)
+# db_from_env = dj_database_url.config(conn_max_age=600)
+# DATABASES['default'].update(db_from_env)
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
@@ -167,3 +182,11 @@ EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''
 EMAIL_USE_TLS = True
 
+# Storage on S3 settings are stored as os.environs to keep settings.py clean
+if not DEBUG:
+   AWS_STORAGE_BUCKET_NAME = os.environ['AWS_STORAGE_BUCKET_NAME']
+   AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
+   AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
+   STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+   S3_URL = 'http://%s.s3.amazonaws.com/' % AWS_STORAGE_BUCKET_NAME
+   STATIC_URL = S3_URL
