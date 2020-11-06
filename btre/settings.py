@@ -81,25 +81,23 @@ TEMPLATES = [
 WSGI_APPLICATION = 'btre.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/2.1/ref/settings/#databases
+Database
+https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'btredb',
-#         'USER': 'postgres',
-#         'PASSWORD': 'admin',
-#         'HOST': 'localhost'
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'btredb',
+        'USER': 'postgres',
+        'PASSWORD': 'admin',
+        'HOST': 'localhost'
+    }
+}
 
 
 # New
-
-DATABASES = {
-    'default': dj_database_url.config()
-}
+db_from_env = dj_database_url.config(conn_max_age=600)
+DATABASES['default'].update(db_from_env)
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
